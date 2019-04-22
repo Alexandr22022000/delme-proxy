@@ -9,6 +9,10 @@ const express = require('express'),
 app.use(cookieParser());
 app.use(cors());
 
+proxy.on('proxyReq', function(proxyReq, req, res, options) {
+    proxyReq.setHeader('Origin', 'https://www.walmart.com');
+});
+
 app.use((req, res) => {
 
     //req.headers.origin = 'https://www.walmart.com';

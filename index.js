@@ -12,7 +12,7 @@ app.use(cors());
 app.use((req, res) => {
 
     //req.headers.origin = 'https://www.walmart.com';
-    console.log(req.headers.origin);
+    console.log(req.headers);
 
     proxy.web(req, res, {
         target: 'http://localhost:8101',

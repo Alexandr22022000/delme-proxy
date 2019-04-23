@@ -1,26 +1,28 @@
 const express = require('express'),
-    httpProxy = require('http-proxy'),
-    cookieParser = require('cookie-parser'),
-    cors = require('cors'),
-
-    proxy = httpProxy.createProxyServer({}),
+    proxy = require('http-proxy-middleware'),
     app = express();
 
-app.use(cookieParser());
-app.use(cors());
+let domain,
+    target = 'https://www.walmart.com';
 
-proxy.on('proxyReq', function(proxyReq, req, res, options) {
-    proxyReq.setHeader('Origin', 'https://www.walmart.com');
-});
+const onProxyReq = (proxyReq, req, res) => {
+    if (req.headers.host) domain = req.headers.host;
+    proxyReq.setHeader('Origin', 'https://www.walmart.com')
+};
 
-app.use((req, res) => {
+const onProxyRes = (proxyRes, req, res) => {
+    let cookie = proxyRes.headers['set-cookie'];
 
-    //req.headers.origin = 'https://www.walmart.com';
-    console.log(req.headers);
-
-    proxy.web(req, res, {
-        target: 'http://localhost:8101',
+    cookie = cookie.map((item) => {
+        item = item.replace(/Domain=.+;/g, 'Domain=' + domain + ';');
+        item = item.replace(/Domain=.+$/g, 'Domain=' + domain + '');
+        item = item.replace(/domain=.+;/g, 'domain=' + domain + ';');
+        item = item.replace(/domain=.+$/g, 'domain=' + domain + '');
+        return item;
     });
-});
 
-app.listen(8100, () => console.log("Host is started on port 8100"));
+    proxyRes.headers['set-cookie'] = cookie;
+};
+
+app.use('/', proxy({ target, changeOrigin: true, onProxyReq, onProxyRes}));
+app.listen(8100);

@@ -5,8 +5,10 @@ const express = require('express'),
     app = express();
 
 app.use((req, res) => {
+    console.log(req.headers);
+
     proxy.web(req, res, {
-        target: 'http://redstar-systems.com',
+        target: 'http://redstar-systems.com:8101',
     });
 });
 

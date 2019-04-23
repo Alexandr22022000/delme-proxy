@@ -6,7 +6,12 @@ let domain,
     target = 'https://www.walmart.com';
 
 const onProxyReq = (proxyReq, req, res) => {
-    if (req.headers.host) domain = req.headers.host.replace(/:.+$/g, '');
+    if (req.headers.origin) {
+        domain = req.headers.origin;
+        domain = domain.replace(/^https?:\/\//, '');
+        domain = domain.replace(/:.+?$/g, '');
+    }
+
     proxyReq.setHeader('Origin', 'https://www.walmart.com')
 };
 
